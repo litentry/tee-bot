@@ -1,0 +1,17 @@
+bots:
+    token: ''
+    prefix: '!'
+    footer: ''
+    discord-invite: ''
+    bot-invite: ''
+    web-hook: ''
+    social-link: ''
+    should_polkadot_wallet: true
+    should_captcha: true
+    polka_verified_role_id: 0
+    polka_verified_chan_id: 0
+    captcha_verified_role_id: 0
+
+logging:
+  level:
+    root: INFO
