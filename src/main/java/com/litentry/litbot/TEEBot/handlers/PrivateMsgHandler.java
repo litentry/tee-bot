@@ -48,8 +48,6 @@ public class PrivateMsgHandler extends ListenerAdapter {
             return;
         }
 
-        log.info("main guild id {}", botProperties.getMainGuildId());
-
         User user = event.getAuthor();
         String content = raw(event).trim().toLowerCase();
         if (event.isFromType(ChannelType.TEXT) && !user.isBot() && !user.isSystem()) {

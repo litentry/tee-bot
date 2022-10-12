@@ -12,6 +12,11 @@ bots:
     polka_verified_chan_id: 0
     captcha_verified_role_id: 0
 
+twitter:
+  key: ''
+  secret: ''
+  bear_token: ''
+
 logging:
   level:
     root: INFO

@@ -13,6 +13,9 @@ public enum MsgEnum {
     DISCORD_VERIFY_MSG_FOUND(100101, "Discord verify message found", ""),
     DISCORD_VERIFY_MSG_NOTFOUND(100102, "Discord verify message not found", ""),
 
+    // twitter: 201
+    TWITTER_HANDLER_NOTFOUND(100201, "Twitter handler not found", ""),
+
     // system common:99
     SYSTEM_COMMON_SUCCESS(100000, "Success", "操作成功"),
     SYSTEM_COMMON_FAIL(99000, "Fail", "操作失败"),

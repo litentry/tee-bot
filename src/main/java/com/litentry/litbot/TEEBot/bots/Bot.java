@@ -88,7 +88,7 @@ public class Bot {
         // wait for loading all resources
         // jda.awaitReady();
 
-        log.info("started LITBot: {} {}", this, jda.getToken());
+        log.info("started LITBot: {}", this);
 
         polkadotVerifyService.setJDA(jda);
     }

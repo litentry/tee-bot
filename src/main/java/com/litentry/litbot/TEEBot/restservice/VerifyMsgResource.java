@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.litentry.litbot.TEEBot.config.BotProperties;
 import com.litentry.litbot.TEEBot.config.MsgEnum;
 import com.litentry.litbot.TEEBot.domain.DiscordVerifyMsg;
-import com.litentry.litbot.TEEBot.handlers.PrivateMsgHandler;
 import com.litentry.litbot.TEEBot.restservice.vm.DiscordVerify;
 import com.litentry.litbot.TEEBot.restservice.vm.DiscordVerifyVM;
 import com.litentry.litbot.TEEBot.service.DiscordVerifyMsgService;
@@ -40,8 +39,6 @@ public class VerifyMsgResource {
         DiscordVerifyVM result = new DiscordVerifyVM();
         result.setGuildId(botProperties.getMainGuildId());
         result.setHandler(verifyMsg.getHandler());
-
-        log.info("got handler {} {}", verifyMsg.getHandler(), botProperties.getMainGuildId());
 
         if (!verifyMsg.getHandler().isEmpty() && verifyMsg.getHandler().length() < 64) {
             DiscordVerifyMsg msg = verifyMsgService.getLatest(botProperties.getMainGuildId(), verifyMsg.getHandler());
