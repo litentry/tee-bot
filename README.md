@@ -113,6 +113,7 @@ Due to the twitter api limitations, only the first 1000 followers can be fetched
 Will improve this to multiple "pages" of results in the future version.
 
 Request: GET /twitter/followers/verification?handler1={handler1}&handler2={handler2}
+
 Response: 
 ```json
 {
@@ -129,3 +130,4 @@ Response:
 - 100000 Success
 - 100101 Discord verify message found
 - 100102 Discord verify message not found
+- 100201 Twitter handler not found
