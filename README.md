@@ -66,6 +66,23 @@ Response:
 }
 ```
 
+### Check User joined Discord Guild
+
+Check whether the user {userid} has joined {guildid} or not
+
+Request: GET /discord/joined?guildid={guildid}&userid={userid}
+
+Response: 
+```json
+{
+	"data": true,
+	"message": "Success",
+	"hasErrors": false,
+	"msgCode": 100000,
+	"success": true
+}
+```
+
 ## Twitter
 
 ### Get User Id By Handler
@@ -108,7 +125,7 @@ Response:
 ### Twitter Followers Verification
 Check whether the {handler2} is following {handler1} or not.
 
-Due to the twitter api limitations, only the first 1000 followers can be fetched. 
+Due to the twitter api limitations, `only the first 1000 followers` can be fetched. 
 
 Will improve this to multiple "pages" of results in the future version.
 
@@ -130,4 +147,6 @@ Response:
 - 100000 Success
 - 100101 Discord verify message found
 - 100102 Discord verify message not found
+- 100103 Discord guild id invalid
+- 100104 Discord user handler invalid
 - 100201 Twitter handler not found

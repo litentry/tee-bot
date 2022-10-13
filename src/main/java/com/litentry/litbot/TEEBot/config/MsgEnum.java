@@ -12,6 +12,8 @@ public enum MsgEnum {
     // discord: 101
     DISCORD_VERIFY_MSG_FOUND(100101, "Discord verify message found", ""),
     DISCORD_VERIFY_MSG_NOTFOUND(100102, "Discord verify message not found", ""),
+    DISCORD_GUILD_ID_INVALID(100103, "Discord guild id invalid", ""),
+    DISCORD_USER_HANDLER_INVALID(100104, "Discord user handler invalid", ""),
 
     // twitter: 201
     TWITTER_HANDLER_NOTFOUND(100201, "Twitter handler not found", ""),

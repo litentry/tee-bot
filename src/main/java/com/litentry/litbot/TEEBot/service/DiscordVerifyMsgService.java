@@ -5,7 +5,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.litentry.litbot.TEEBot.domain.DiscordVerifyMsg;
 import com.litentry.litbot.TEEBot.repository.DiscordVerifyMsgRepository;
+
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,11 +22,18 @@ import org.slf4j.LoggerFactory;
 public class DiscordVerifyMsgService {
     private static final Logger log = LoggerFactory.getLogger(DiscordVerifyMsgService.class);
 
+    private JDA jda = null;
     private DiscordVerifyMsgRepository verifyMsgRepo;
     private static int MAX_MSG_COUNT = 10;
 
     public DiscordVerifyMsgService(DiscordVerifyMsgRepository verifyMsgRepo) {
         this.verifyMsgRepo = verifyMsgRepo;
+    }
+
+    public void setJDA(JDA jda) {
+        if (jda != null) {
+            this.jda = jda;
+        }
     }
 
     public void addMsg(Long guildId, Long userId, Long channelId, Long msgId, String userName, String msg,
@@ -52,5 +67,31 @@ public class DiscordVerifyMsgService {
             return msgList.get(0);
         }
         return null;
+    }
+
+    public Boolean checkHasJoined(@NotNull Long guildId, @NotNull Long userId) {
+        boolean[] founds = new boolean[1];
+        founds[0] = false;
+        try {
+            List<Guild> guilds = jda.getGuilds();
+            for (Guild guild : guilds) {
+                if (guild.getIdLong() == guildId) {
+                    jda.retrieveUserById(userId)
+                            .queue(user -> {
+                                guild.retrieveMember(user).queue(
+                                        member -> {
+                                            log.info("uid {} has joined guild {}", userId, guildId);
+                                            founds[0] = true;
+                                        },
+                                        error -> {
+                                        });
+                            });
+                }
+            }
+        } catch (Exception e) {
+            log.error("{}", e);
+        }
+
+        return founds[0];
     }
 }

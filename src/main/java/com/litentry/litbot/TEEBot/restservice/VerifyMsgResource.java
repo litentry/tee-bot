@@ -3,6 +3,7 @@ package com.litentry.litbot.TEEBot.restservice;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,5 +59,31 @@ public class VerifyMsgResource {
         }
 
         return ResponseEntity.ok(new InvokeResult<>(result).failure(MsgEnum.DISCORD_VERIFY_MSG_NOTFOUND));
+    }
+
+    // check whether the user {userid} has joined {guildid} or not
+    @GetMapping("/joined")
+    public ResponseEntity<InvokeResult<Boolean>> HasJoined(String userid, String guildid) {
+        if (guildid == null || guildid.isEmpty()) {
+            return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
+        }
+        if (userid == null || userid.isEmpty()) {
+            return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_HANDLER_INVALID));
+        }
+
+        Boolean check = false;
+        try {
+            long gid = Long.parseLong(guildid);
+            long uid = Long.parseLong(userid);
+
+            check = verifyMsgService.checkHasJoined(gid, uid);
+            if (check) {
+                return ResponseEntity.ok(new InvokeResult<>(check).success(MsgEnum.SYSTEM_COMMON_SUCCESS));
+            }
+        } catch (Exception e) {
+            log.error("{}", e);
+        }
+
+        return ResponseEntity.ok(new InvokeResult<>(check).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
     }
 }

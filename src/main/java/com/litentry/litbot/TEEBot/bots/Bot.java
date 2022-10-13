@@ -44,14 +44,11 @@ public class Bot {
 
     public Bot(BotProperties botProperties, PolkadotVerifyService polkadotVerifyService,
             DiscordGuildRepository discordGuildRepository, DiscordVerifyMsgService discordVerifyMsgService)
-            throws LoginException {
+            throws LoginException, InterruptedException {
         this.botProperties = botProperties;
         this.polkadotVerifyService = polkadotVerifyService;
         this.discordGuildRepository = discordGuildRepository;
         this.discordVerifyMsgService = discordVerifyMsgService;
-
-        // db = DBMaker.fileDB("discord_bot.db").checksumHeaderBypass()
-        // .allocateStartSize(10 * 1024 * 1024).allocateIncrement(1024 * 1024).make();
 
         int threadpoolSize = 10;
         threadpool = Executors.newScheduledThreadPool(threadpoolSize);
@@ -72,9 +69,10 @@ public class Bot {
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.DIRECT_MESSAGES)
-                .setMemberCachePolicy(MemberCachePolicy.ONLINE)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(CacheFlag.CLIENT_STATUS)
-                .disableCache(CacheFlag.VOICE_STATE, CacheFlag.MEMBER_OVERRIDES)
+                .enableCache(CacheFlag.ROLE_TAGS)
+                .disableCache(CacheFlag.VOICE_STATE, CacheFlag.MEMBER_OVERRIDES, CacheFlag.EMOTE)
                 .setChunkingFilter(ChunkingFilter.NONE)
                 .setMaxBufferSize(40960)
                 .addEventListeners(new Listener(this, this.botProperties, discordGuildRepository), waiter, cmdHandler,
@@ -86,11 +84,12 @@ public class Bot {
                 .build();
 
         // wait for loading all resources
-        // jda.awaitReady();
+        jda.awaitReady();
 
         log.info("started LITBot: {}", this);
 
-        polkadotVerifyService.setJDA(jda);
+        this.polkadotVerifyService.setJDA(jda);
+        this.discordVerifyMsgService.setJDA(jda);
     }
 
     public ScheduledExecutorService getThreadpool() {

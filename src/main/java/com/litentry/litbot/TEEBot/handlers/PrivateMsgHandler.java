@@ -55,7 +55,7 @@ public class PrivateMsgHandler extends ListenerAdapter {
 
             String userName = user.getName() + "#" + user.getDiscriminator();
 
-            log.info("got text channel message: {} {} {} {} {}", guildId, user.getName(),
+            log.info("got text channel message: {} {} {} {} {} {}", guildId, user.getId(), user.getName(),
                     user.getDiscriminator(), content, event.getJumpUrl());
             if (isProofMsg(content)) {
                 discordVerifyMsgService.addMsg(guildId, user.getIdLong(), event.getChannel().getIdLong(),
