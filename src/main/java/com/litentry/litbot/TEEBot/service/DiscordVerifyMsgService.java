@@ -3,9 +3,9 @@ package com.litentry.litbot.TEEBot.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.litentry.litbot.TEEBot.config.Constants;
 import com.litentry.litbot.TEEBot.domain.DiscordVerifyMsg;
 import com.litentry.litbot.TEEBot.repository.DiscordVerifyMsgRepository;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -93,5 +93,28 @@ public class DiscordVerifyMsgService {
         }
 
         return founds[0];
+    }
+
+    // user `handler` means `Name#Discriminator`
+    public Boolean checkHasJoined(@NotNull Long guildId, @NotNull String handler) {
+        if (handler.contains(Constants.DISCRIMINATOR)) {
+            // username, discriminator
+            String[] tmpArray = handler.split(Constants.DISCRIMINATOR);
+            try {
+                List<Guild> guilds = jda.getGuilds();
+                for (Guild guild : guilds) {
+                    if (guild.getIdLong() == guildId) {
+                        Member m = guild.getMemberByTag(handler);
+                        if (m != null) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error("{}", e);
+            }
+        }
+
+        return false;
     }
 }

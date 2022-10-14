@@ -11,31 +11,31 @@ public final class Constants {
     public static final String DEFAULT_LANGUAGE = "en";
     public static final String SYMBOL_LIT = "LIT";
 
-    //transaction type
+    // transaction type
     public static final long TRANSACTION_TYPE_IN = 0L;
     public static final long TRANSACTION_TYPE_OUT = 1L;
 
-    //blockchain type
+    // blockchain type
     public static final long BLOCKCHAIN_NULL = 0L;
     public static final long BLOCKCHAIN_POLKADOT = 1L;
     public static final long BLOCKCHAIN_ETHEREUM = 2L;
     public static final long BLOCKCHAIN_BSC = 3L;
 
-    //blockchain decimal
+    // blockchain decimal
     public static final int CHAIN_DECIMAL_ETHEREUM = 18;
     public static final int CHAIN_DECIMAL_POLKADOT = 10;
     public static final int CHAIN_DECIMAL_KUSAMA = 12;
     public static final int CHAIN_LITENTRY_STAGING = 12;
 
-    //parachain chain type
+    // parachain chain type
     public static final long PARACHAIN_WESTEND = 0L;
     public static final long PARACHAIN_KUSAMA = 1L;
     public static final long PARACHAIN_DOT = 2L;
     public static final long PARACHAIN_LITENTRY_STAGING = 3L;
 
-    //---------------------for discord bots-----------------------------
+    // ---------------------for discord bots-----------------------------
     public static final int USER_TYPE_ORIGIN = 0;
-    public static final int USER_TYPE_DISCORD = 1; //for discord users
+    public static final int USER_TYPE_DISCORD = 1; // for discord users
 
     // Invites Reward
     public static final long MAX_REWARD_INVITES = 1000L;
@@ -66,5 +66,9 @@ public final class Constants {
     public static final int CAPTCHA_LENGTH = 6;
     public static final String CAPTCHA_VERIFIED_ROLE = "CaptchaVerified";
 
-    private Constants() {}
+    // Discord
+    public static final String DISCRIMINATOR = "#";
+
+    private Constants() {
+    }
 }

@@ -61,22 +61,20 @@ public class VerifyMsgResource {
         return ResponseEntity.ok(new InvokeResult<>(result).failure(MsgEnum.DISCORD_VERIFY_MSG_NOTFOUND));
     }
 
-    // check whether the user {userid} has joined {guildid} or not
+    // check whether the user {handler} has joined {guildid} or not
     @GetMapping("/joined")
-    public ResponseEntity<InvokeResult<Boolean>> HasJoined(String userid, String guildid) {
+    public ResponseEntity<InvokeResult<Boolean>> HasJoined(String handler, String guildid) {
         if (guildid == null || guildid.isEmpty()) {
             return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
         }
-        if (userid == null || userid.isEmpty()) {
+        if (handler == null || handler.isEmpty()) {
             return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_HANDLER_INVALID));
         }
 
         Boolean check = false;
         try {
             long gid = Long.parseLong(guildid);
-            long uid = Long.parseLong(userid);
-
-            check = verifyMsgService.checkHasJoined(gid, uid);
+            check = verifyMsgService.checkHasJoined(gid, handler);
             if (check) {
                 return ResponseEntity.ok(new InvokeResult<>(check).success(MsgEnum.SYSTEM_COMMON_SUCCESS));
             }
