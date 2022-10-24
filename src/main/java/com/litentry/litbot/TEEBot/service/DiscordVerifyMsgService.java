@@ -6,12 +6,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.litentry.litbot.TEEBot.config.Constants;
 import com.litentry.litbot.TEEBot.domain.DiscordVerifyMsg;
 import com.litentry.litbot.TEEBot.repository.DiscordVerifyMsgRepository;
+import com.litentry.litbot.TEEBot.utils.BotUtils;
+
+import me.duncte123.botcommons.messaging.EmbedUtils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -61,8 +66,6 @@ public class DiscordVerifyMsgService {
     public DiscordVerifyMsg getLatest(Long guildId, String userName) {
         List<DiscordVerifyMsg> msgList = verifyMsgRepo.findAllByGuildIdAndDiscordUserOrderByCreatedAtDesc(guildId,
                 userName);
-        log.info("msgList.size {} {} {}", guildId, userName, msgList.size());
-
         if (!msgList.isEmpty()) {
             return msgList.get(0);
         }
@@ -99,7 +102,7 @@ public class DiscordVerifyMsgService {
     public Boolean checkHasJoined(@NotNull Long guildId, @NotNull String handler) {
         if (handler.contains(Constants.DISCRIMINATOR)) {
             // username, discriminator
-            String[] tmpArray = handler.split(Constants.DISCRIMINATOR);
+            // String[] tmpArray = handler.split(Constants.DISCRIMINATOR);
             try {
                 List<Guild> guilds = jda.getGuilds();
                 for (Guild guild : guilds) {
@@ -113,6 +116,56 @@ public class DiscordVerifyMsgService {
             } catch (Exception e) {
                 log.error("{}", e);
             }
+        }
+
+        return false;
+    }
+
+    // user `handler` means `Name#Discriminator`
+    public Boolean assginRoleToUser(@NotNull Long guildId, @NotNull String handler, @NotNull Long roleId) {
+        if (checkHasJoined(guildId, handler) && roleId > 0) {
+            try {
+                List<Guild> guilds = jda.getGuilds();
+                for (Guild guild : guilds) {
+                    if (guild.getIdLong() == guildId) {
+                        Member m = guild.getMemberByTag(handler);
+                        boolean assigned = assignRole(guild, m.getUser(), roleId);
+                        if (!assigned) {
+                            log.error("Error assign Role {} {} {}", guildId, m.getId(), roleId);
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            } catch (Exception e) {
+                log.error("{}", e);
+            }
+        }
+
+        return false;
+    }
+
+    private boolean assignRole(Guild guild, User user, Long roleId) {
+        if (guild == null || user == null) {
+            return false;
+        }
+
+        Role role = guild.getRoleById(roleId);
+        if (role != null) {
+            log.info("adding ID-Hubber Role {} {} {}", guild.getId(), user.getId(), roleId);
+            guild
+                    .addRoleToMember(user, role)
+                    .queue(__ -> {
+                        EmbedBuilder embed = EmbedUtils
+                                .getDefaultEmbed()
+                                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                                .setDescription("**Guild**: " + guild.getName() + "\n**Role**: " + role.getName())
+                                .setAuthor("Role Added to " + user.getName())
+                                .setColor(role.getColor());
+
+                        // BotUtils.sendDM(user, embed.build());
+                    });
+            return true;
         }
 
         return false;

@@ -2,6 +2,34 @@
 
 microservice within TEE
 
+# Compile and Run as a common Java instance
+
+## Compile
+
+```bash
+ ./mvnw clean package -Dmaven.test.skip=true
+```
+
+## Run
+
+```bash
+
+```
+
+# Compile and Run as TEE hosted Java instance
+
+## Install Occulum and Setup Occulum toolchains
+
+TBD
+
+## Compile
+
+TBD
+
+## Run within TEE
+
+TBD
+
 # Interfaces
 
 ## Discord
@@ -94,6 +122,26 @@ Response:
 }
 ```
 
+### Assign ID-Hubber Role to User
+
+Assign the 'ID-Hubber' Role to the user {handler} who has joined {guildid}.
+
+Notice: The {handler} must be in the URL-Encode format.
+
+Request: POST /discord/assgin/idhubber?handler={}&guildid={}
+
+Response:
+
+```json
+{
+    "data": true,
+    "message": "Success",
+    "hasErrors": false,
+    "msgCode": 100000,
+    "success": true
+}
+```
+
 ## Twitter
 
 ### Get User Id By Handler
@@ -159,12 +207,21 @@ Response:
 }
 ```
 
-## Error codes
+## Success or Error codes
+
+### Common codes
 
 - 99000  Fail
 - 100000 Success
+
+### Discord codes
+
 - 100101 Discord verify message found
 - 100102 Discord verify message not found
 - 100103 Discord guild id invalid
 - 100104 Discord user handler invalid
+- 100105 Discord user is not in guild
+
+### Twitter codes
+
 - 100201 Twitter handler not found

@@ -21,4 +21,5 @@ public class BotProperties {
     private Long polkaVerifiedChanId;
     private Long captchaVerifiedRoleId;
     private Long mainGuildId;
+    private Long idHubberRoleId;
 }
