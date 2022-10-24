@@ -142,6 +142,26 @@ Response:
 }
 ```
 
+### Has commented in Channel 'id-hubber' with Role 'ID-Hubber' in guild
+
+Check whether the user {handler} with the 'ID-Hubber' Role has commented Channel 'id-hubber' and in {guildid} or not
+
+Notice: The {handler} must be in the URL-Encode format.
+
+Request: POST /discord/commented/idhubber?handler={}&guildid={}
+
+Response:
+
+```json
+{
+    "data": true,
+    "message": "Success",
+    "hasErrors": false,
+    "msgCode": 100000,
+    "success": true
+}
+```
+
 ## Twitter
 
 ### Get User Id By Handler

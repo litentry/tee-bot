@@ -16,8 +16,6 @@ import com.litentry.litbot.TEEBot.restservice.vm.DiscordVerify;
 import com.litentry.litbot.TEEBot.restservice.vm.DiscordVerifyVM;
 import com.litentry.litbot.TEEBot.service.DiscordVerifyMsgService;
 
-import net.dv8tion.jda.internal.handle.GuildDeleteHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +85,7 @@ public class VerifyMsgResource {
         return ResponseEntity.ok(new InvokeResult<>(check).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
     }
 
+    // Assign the 'ID-Hubber' Role to the user {handler} who has joined {guildid}.
     @PostMapping("/assgin/idhubber")
     public ResponseEntity<InvokeResult<Boolean>> AssignRole(String handler, String guildid) {
         if (guildid == null || guildid.isEmpty()) {
@@ -116,6 +115,39 @@ public class VerifyMsgResource {
         } catch (Exception e) {
             log.error("{}", e);
         }
+        return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
+    }
+
+    @PostMapping("/commented/idhubber")
+    public ResponseEntity<InvokeResult<Boolean>> HasCommneted(String handler, String guildid) {
+        if (guildid == null || guildid.isEmpty()) {
+            return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
+        }
+        if (handler == null || handler.isEmpty()) {
+            return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_HANDLER_INVALID));
+        }
+
+        try {
+            long gid = Long.parseLong(guildid);
+            Long channelId = botProperties.getIdHubberChannelId();
+            Long roleId = botProperties.getIdHubberRoleId();
+
+            if (!verifyMsgService.checkHasJoined(gid, handler)) {
+                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_NOTIN_GUILD));
+            }
+
+            if (channelId <= 0) {
+                log.error("invalid channelId {}", channelId);
+                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
+            }
+
+            if (verifyMsgService.hasCommentedInChannelWithRole(gid, handler, channelId, roleId)) {
+                return ResponseEntity.ok(new InvokeResult<>(true).success(MsgEnum.SYSTEM_COMMON_SUCCESS));
+            }
+        } catch (Exception e) {
+            log.error("{}", e);
+        }
+
         return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
     }
 }

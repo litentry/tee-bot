@@ -62,6 +62,8 @@ public class PrivateMsgHandler extends ListenerAdapter {
                 discordVerifyMsgService.addMsg(guildId, user.getIdLong(), event.getChannel().getIdLong(),
                         event.getMessage().getIdLong(), userName, content, event.getJumpUrl());
             }
+
+            log.info("channel id {}", event.getChannel().getId());
         }
         // log.info("got Private Message, content:{}, author:{}", content,
         // author.getId());

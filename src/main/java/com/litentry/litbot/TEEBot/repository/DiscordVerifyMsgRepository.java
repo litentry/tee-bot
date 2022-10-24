@@ -11,5 +11,8 @@ public interface DiscordVerifyMsgRepository extends JpaRepository<DiscordVerifyM
 
     List<DiscordVerifyMsg> findAllByGuildIdAndDiscordUserOrderByCreatedAtDesc(Long guildId, String discordUser);
 
+    List<DiscordVerifyMsg> findAllByGuildIdAndDiscordUserAndChannelIdOrderByCreatedAtDesc(Long guildId,
+            String discordUser, Long channelId);
+
     void deleteById(Long id);
 }

@@ -22,4 +22,5 @@ public class BotProperties {
     private Long captchaVerifiedRoleId;
     private Long mainGuildId;
     private Long idHubberRoleId;
+    private Long idHubberChannelId;
 }

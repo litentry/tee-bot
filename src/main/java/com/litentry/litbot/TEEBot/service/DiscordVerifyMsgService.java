@@ -29,7 +29,7 @@ public class DiscordVerifyMsgService {
 
     private JDA jda = null;
     private DiscordVerifyMsgRepository verifyMsgRepo;
-    private static int MAX_MSG_COUNT = 10;
+    private static int MAX_MSG_COUNT = 50;
 
     public DiscordVerifyMsgService(DiscordVerifyMsgRepository verifyMsgRepo) {
         this.verifyMsgRepo = verifyMsgRepo;
@@ -145,7 +145,33 @@ public class DiscordVerifyMsgService {
         return false;
     }
 
-    private boolean assignRole(Guild guild, User user, Long roleId) {
+    public Boolean hasCommentedInChannelWithRole(@NotNull Long guildId, @NotNull String handler,
+            @NotNull Long channelId, @NotNull Long roleId) {
+        try {
+            List<Guild> guilds = jda.getGuilds();
+            for (Guild guild : guilds) {
+                if (guild.getIdLong() == guildId) {
+                    Member m = guild.getMemberByTag(handler);
+                    if (hasRole(guild, m, roleId)) {
+                        List<DiscordVerifyMsg> msgList = verifyMsgRepo
+                                .findAllByGuildIdAndDiscordUserAndChannelIdOrderByCreatedAtDesc(
+                                        guildId, handler, channelId);
+
+                        if (!msgList.isEmpty()) {
+                            DiscordVerifyMsg msg = msgList.get(0);
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("{}", e);
+        }
+
+        return false;
+    }
+
+    private boolean assignRole(Guild guild, User user, long roleId) {
         if (guild == null || user == null) {
             return false;
         }
@@ -166,6 +192,20 @@ public class DiscordVerifyMsgService {
                         // BotUtils.sendDM(user, embed.build());
                     });
             return true;
+        }
+        return false;
+    }
+
+    public Boolean hasRole(Guild guild, Member member, long roleId) {
+        if (guild == null || member == null) {
+            return false;
+        }
+
+        List<Role> roles = member.getRoles();
+        for (Role r : roles) {
+            if (r.getIdLong() == roleId) {
+                return true;
+            }
         }
 
         return false;
