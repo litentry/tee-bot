@@ -11,6 +11,9 @@ bots:
     polka_verified_role_id: 0
     polka_verified_chan_id: 0
     captcha_verified_role_id: 0
+    main_guild_id: 0
+    id_hubber_role_id: 0
+    id_hubber_channel_id: 0
 
 twitter:
   key: ''
