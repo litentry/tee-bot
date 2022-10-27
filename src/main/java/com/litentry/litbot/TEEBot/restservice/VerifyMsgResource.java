@@ -86,7 +86,7 @@ public class VerifyMsgResource {
     }
 
     // Assign the 'ID-Hubber' Role to the user {handler} who has joined {guildid}.
-    @PostMapping("/assgin/idhubber")
+    @GetMapping("/assgin/idhubber")
     public ResponseEntity<InvokeResult<Boolean>> AssignRole(String handler, String guildid) {
         if (guildid == null || guildid.isEmpty()) {
             return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
@@ -118,7 +118,7 @@ public class VerifyMsgResource {
         return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
     }
 
-    @PostMapping("/commented/idhubber")
+    @GetMapping("/commented/idhubber")
     public ResponseEntity<InvokeResult<Boolean>> HasCommneted(String handler, String guildid) {
         if (guildid == null || guildid.isEmpty()) {
             return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));

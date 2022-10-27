@@ -128,7 +128,7 @@ Assign the 'ID-Hubber' Role to the user {handler} who has joined {guildid}.
 
 Notice: The {handler} must be in the URL-Encode format.
 
-Request: POST /discord/assgin/idhubber?handler={}&guildid={}
+Request: GET /discord/assgin/idhubber?handler={}&guildid={}
 
 Response:
 
@@ -148,7 +148,7 @@ Check whether the user {handler} with the 'ID-Hubber' Role has commented Channel
 
 Notice: The {handler} must be in the URL-Encode format.
 
-Request: POST /discord/commented/idhubber?handler={}&guildid={}
+Request: GET /discord/commented/idhubber?handler={}&guildid={}
 
 Response:
 
