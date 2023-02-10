@@ -16,7 +16,7 @@ microservice within TEE
 
 ```
 
-# Compile and Run as TEE hosted Java instance
+# Compile and Run in TEE hosted by Occulum
 
 ## Install Occulum and Setup Occulum toolchains
 
