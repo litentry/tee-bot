@@ -119,7 +119,8 @@ public class VerifyMsgResource {
     }
 
     @GetMapping("/commented/idhubber")
-    public ResponseEntity<InvokeResult<Boolean>> HasCommneted(String handler, String guildid) {
+    public ResponseEntity<InvokeResult<Boolean>> HasCommneted(String handler, String guildid, String channelid,
+            String roleid) {
         if (guildid == null || guildid.isEmpty()) {
             return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
         }
@@ -129,15 +130,15 @@ public class VerifyMsgResource {
 
         try {
             long gid = Long.parseLong(guildid);
-            Long channelId = botProperties.getIdHubberChannelId();
-            Long roleId = botProperties.getIdHubberRoleId();
+            Long channelId = Long.parseLong(channelid);
+            Long roleId = Long.parseLong(roleid);
 
             if (!verifyMsgService.checkHasJoined(gid, handler)) {
                 return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_NOTIN_GUILD));
             }
 
-            if (channelId <= 0) {
-                log.error("invalid channelId {}", channelId);
+            if (channelId <= 0 || roleId <= 0) {
+                log.error("invalid id {} {}", channelId, roleId);
                 return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
             }
 
