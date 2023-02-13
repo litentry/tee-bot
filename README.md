@@ -148,7 +148,7 @@ Check whether the user {handler} with the 'ID-Hubber' Role has commented Channel
 
 Notice: The {handler} must be in the URL-Encode format.
 
-Request: GET /discord/commented/idhubber?handler={}&guildid={}
+Request: GET /discord/commented/idhubber?handler={}&guildid={}&channelid={}&roleid={}
 
 Response:
 
