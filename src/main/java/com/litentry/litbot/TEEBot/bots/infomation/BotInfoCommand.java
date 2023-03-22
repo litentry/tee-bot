@@ -135,7 +135,7 @@ public class BotInfoCommand extends ICommand {
             //                true
             //            )
             //.addField("INVITE:", "[Add Me here!](" + botProperties.getBotInvite() + ")", true)
-            .addField("SUPPORT:", "[Drop3 Discord](" + botProperties.getDiscordInvite() + ")", true);
+            .addField("SUPPORT:", "[Litentry Discord](" + botProperties.getDiscordInvite() + ")", true);
 
         ctx.reply(eb.build());
     }
