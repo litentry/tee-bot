@@ -1,0 +1,1 @@
+java -jar target/TEEBot-0.0.1-SNAPSHOT.jar --server.port=9529 > tee.log 2>&1 &
