@@ -78,7 +78,7 @@ public class PrivateMsgHandler extends ListenerAdapter {
                         EmbedBuilder embed = EmbedUtils
                                 .getDefaultEmbed()
                                 .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
-                                .setTitle("Identity Linking")
+                                // .setTitle("Identity Linking")
                                 .setFooter(botProperties.getFooter())
                                 .setDescription(
                                         desc);
