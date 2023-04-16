@@ -71,14 +71,14 @@ public class PrivateMsgHandler extends ListenerAdapter {
                         user.getDiscriminator(), content, event.getJumpUrl());
                 log.info("guildId {}, channelId {}", guildId, channel.getId());
                 if (isProofMsg(content)) {
-
                     discordVerifyMsgService.addMsg(guildId, user.getIdLong(), channel.getIdLong(),
                             event.getMessage().getIdLong(), userName, content, event.getJumpUrl());
                     if (event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND)) {
-                        String desc = "Thank you!\nWe’ve received your code. You can now return and continue your identity linking.\nRemember - no matter who you share the challenge code with, your data remains secure and private, as it is stored within the TEE.";
+                        String desc = "Thank you! We’ve received your code. You can now return and continue your identity linking.\nRemember - no matter who you share the challenge code with, your data remains secure and private, as it is stored within the TEE.";
                         EmbedBuilder embed = EmbedUtils
                                 .getDefaultEmbed()
-                                .setAuthor("Identity Linking")
+                                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                                .setTitle("Identity Linking")
                                 .setFooter(botProperties.getFooter())
                                 .setDescription(
                                         desc);
