@@ -1,6 +1,5 @@
 package com.litentry.litbot.TEEBot.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +23,9 @@ import com.twitter.clientlib.model.Get2UsersIdFollowersResponse;
 import com.twitter.clientlib.model.ResourceUnauthorizedProblem;
 import com.twitter.clientlib.model.User;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+
 @Service
 public class TwitterService {
     private static final Logger log = LoggerFactory.getLogger(TwitterService.class);
@@ -32,9 +34,16 @@ public class TwitterService {
     private final TwitterApi apiInstance;
     private static int RETRIES = 5;
 
+    private final Twitter twitter4j;
+
     public TwitterService(TwitterProperties twitterProperties) {
         this.twitterProperties = twitterProperties;
         apiInstance = new TwitterApi(new TwitterCredentialsBearer(this.twitterProperties.getBearToken()));
+        twitter4j = Twitter.newBuilder()
+                .oAuthConsumer(this.twitterProperties.getConsumerKey(), this.twitterProperties.getConsumerSecret())
+                .oAuthAccessToken(this.twitterProperties.getAccessToken(),
+                        this.twitterProperties.getAccessTokenSecret())
+                .build();
     }
 
     public TwitterVM FindTweetById(@NotNull String tid) {
@@ -87,13 +96,25 @@ public class TwitterService {
                 return user;
             }
         } catch (ApiException e) {
-            log.error("");
             log.error("Exception when calling UsersApi#findUserByUsername. Status code: {}, Reason:{}", e.getCode(),
                     e.getResponseBody());
             log.error("Response headers: {}", e.getResponseHeaders());
             log.error("{}", e);
         }
         return null;
+    }
+
+    public boolean CheckFriendship(String uid, String beCheckedUid) {
+        log.info("CheckFriendship {} {}", uid, beCheckedUid);
+        try {
+            twitter4j.v1().tweets().updateStatus("Hello Twitter API!");
+            twitter4j.v1().friendsFollowers().showFriendship(uid, beCheckedUid);
+
+        } catch (TwitterException e) {
+            log.error("got TwitterException {}", e);
+        }
+
+        return false;
     }
 
     // Check whether the {beCheckedUid} is following the {uid} or not

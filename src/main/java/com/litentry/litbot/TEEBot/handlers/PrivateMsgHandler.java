@@ -5,12 +5,18 @@ import com.litentry.litbot.TEEBot.config.BotProperties;
 import com.litentry.litbot.TEEBot.config.Constants;
 import com.litentry.litbot.TEEBot.service.DiscordVerifyMsgService;
 import com.litentry.litbot.TEEBot.service.PolkadotVerifyService;
+import com.litentry.litbot.TEEBot.utils.BotUtils;
+
 //import com.litentry.litbot.TEEBot.utils.BotUtils;
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -42,6 +48,10 @@ public class PrivateMsgHandler extends ListenerAdapter {
         this.waiter = waiter;
     }
 
+    private TextChannel getTextChannel(MessageReceivedEvent event) {
+        return event.getTextChannel();
+    }
+
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         User author = event.getAuthor();
@@ -49,22 +59,37 @@ public class PrivateMsgHandler extends ListenerAdapter {
             return;
         }
 
-        User user = event.getAuthor();
-        String content = raw(event).trim().toLowerCase();
-        if (event.isFromType(ChannelType.TEXT) && !user.isBot() && !user.isSystem()) {
+        try {
+            User user = event.getAuthor();
             Long guildId = event.getGuild().getIdLong();
+            GuildMessageChannel channel = event.getGuildChannel();
+            String content = raw(event).trim().toLowerCase();
 
-            String userName = user.getName() + "#" + user.getDiscriminator();
+            if (event.isFromType(ChannelType.TEXT) && !user.isBot() && !user.isSystem()) {
+                String userName = user.getName() + "#" + user.getDiscriminator();
+                log.info("got text channel message: {} {} {} {} {}", user.getId(), user.getName(),
+                        user.getDiscriminator(), content, event.getJumpUrl());
+                log.info("guildId {}, channelId {}", guildId, channel.getId());
+                if (isProofMsg(content)) {
 
-            log.info("got text channel message: {} {} {} {} {} {}", guildId, user.getId(), user.getName(),
-                    user.getDiscriminator(), content, event.getJumpUrl());
-            if (isProofMsg(content)) {
-                discordVerifyMsgService.addMsg(guildId, user.getIdLong(), event.getChannel().getIdLong(),
-                        event.getMessage().getIdLong(), userName, content, event.getJumpUrl());
+                    discordVerifyMsgService.addMsg(guildId, user.getIdLong(), channel.getIdLong(),
+                            event.getMessage().getIdLong(), userName, content, event.getJumpUrl());
+                    if (event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND)) {
+                        String desc = "Thank you!\nWe’ve received your code. You can now return and continue your identity linking.\nRemember - no matter who you share the challenge code with, your data remains secure and private, as it is stored within the TEE.";
+                        EmbedBuilder embed = EmbedUtils
+                                .getDefaultEmbed()
+                                .setAuthor("Identity Linking")
+                                .setFooter(botProperties.getFooter())
+                                .setDescription(
+                                        desc);
+                        BotUtils.sendEmbed(event.getTextChannel(), embed);
+                    }
+                }
             }
-
-            log.info("channel id {}", event.getChannel().getId());
+        } catch (Exception e) {
+            log.error("parse message got error {} {} {}", e, event.getGuild().getIdLong(), author.getId());
         }
+
         // log.info("got Private Message, content:{}, author:{}", content,
         // author.getId());
 
@@ -344,7 +369,7 @@ public class PrivateMsgHandler extends ListenerAdapter {
     }
 
     private boolean isProofMsg(String content) {
-        if (content != null && content.length() < MAX_MSG_SIZE) {
+        if (content != null && content.length() < MAX_MSG_SIZE && content.startsWith("0x")) {
             return true;
         }
         return false;

@@ -11,4 +11,8 @@ public class TwitterProperties {
     private String key;
     private String secret;
     private String bearToken;
+    private String consumerKey;
+    private String consumerSecret;
+    private String accessToken;
+    private String accessTokenSecret;
 }
