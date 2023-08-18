@@ -14,6 +14,7 @@ bots:
     main_guild_id: 0
     id_hubber_role_id: 0
     id_hubber_channel_id: 0
+    verify_identity_channel_id: 0
 
 twitter:
   key: ''

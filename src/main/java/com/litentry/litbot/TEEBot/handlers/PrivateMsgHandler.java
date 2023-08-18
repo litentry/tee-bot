@@ -5,26 +5,25 @@ import com.litentry.litbot.TEEBot.config.BotProperties;
 import com.litentry.litbot.TEEBot.config.Constants;
 import com.litentry.litbot.TEEBot.service.DiscordVerifyMsgService;
 import com.litentry.litbot.TEEBot.service.PolkadotVerifyService;
-import com.litentry.litbot.TEEBot.utils.BotUtils;
 
-//import com.litentry.litbot.TEEBot.utils.BotUtils;
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 @Service
 public class PrivateMsgHandler extends ListenerAdapter {
@@ -38,7 +37,7 @@ public class PrivateMsgHandler extends ListenerAdapter {
     public static int MAX_MSG_SIZE = 255;
 
     public PrivateMsgHandler(BotProperties botProperties, PolkadotVerifyService polkadotVerifyService,
-            DiscordVerifyMsgService discordVerifyMsgService) {
+                             DiscordVerifyMsgService discordVerifyMsgService) {
         this.botProperties = botProperties;
         this.polkadotVerifyService = polkadotVerifyService;
         this.discordVerifyMsgService = discordVerifyMsgService;
@@ -61,33 +60,48 @@ public class PrivateMsgHandler extends ListenerAdapter {
 
         try {
             User user = event.getAuthor();
-            Long guildId = event.getGuild().getIdLong();
-            GuildMessageChannel channel = event.getGuildChannel();
-            String content = raw(event).trim().toLowerCase();
 
             if (event.isFromType(ChannelType.TEXT) && !user.isBot() && !user.isSystem()) {
+                GuildMessageChannel channel = event.getGuildChannel();
+                Long guildId = event.getGuild().getIdLong();
+                String content = raw(event).trim().toLowerCase();
                 String userName = user.getName() + "#" + user.getDiscriminator();
-                log.info("got text channel message: {} {} {} {} {}", user.getId(), user.getName(),
-                        user.getDiscriminator(), content, event.getJumpUrl());
-                log.info("guildId {}, channelId {}", guildId, channel.getId());
-                if (isProofMsg(content)) {
+                boolean isIdHubberChannel =
+                        Objects.equals(String.valueOf(botProperties.getIdHubberChannelId()), channel.getId());
+                boolean isVerifyIdentityChannel =
+                        Objects.equals(String.valueOf(botProperties.getVerifyIdentityChannelId()), channel.getId());
+                if (isIdHubberChannel || isVerifyIdentityChannel) {
+                    log.info("got text channel message: userId[{}] userName[{}] discriminator[{}] content[{}] jumpUrl[{}] guildId[{}] channelId[{}]",
+                            user.getId(), user.getName(), user.getDiscriminator(), content, event.getJumpUrl(),
+                            guildId, channel.getId());
+                }
+
+                if (isVerifyIdentityChannel) {
+                    if (isProofMsg(content)) {
+                        Message message = event.getMessage();
+                        discordVerifyMsgService.addMsg(guildId, user.getIdLong(), channel.getIdLong(),
+                                message.getIdLong(), userName, content, event.getJumpUrl());
+                        if (event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND)) {
+                            String desc = "Thank you! Your code has been received. To continue, please copy the Discord message link as illustrated in the provided image. Once completed, you can proceed with the identity linking process and paste the link. Afterward, click the \"Verify\" button. Your data's security and privacy are safeguarded, stored within the secure TEE. This protection remains intact regardless of who views the challenge code. If you require help, don't hesitate to ask for assistance.";
+                            EmbedBuilder embed = EmbedUtils
+                                    .getDefaultEmbed()
+                                    .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
+                                    .setImage("https://1401007075-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FqZamGXeNdPKNQXKBWxz5%2Fuploads%2FGCXCHopB1twkSbLNqxgh%2FDiscord.png?alt=media")
+                                    .setFooter(botProperties.getFooter())
+                                    .setDescription(desc);
+
+                            message.replyEmbeds(embed.build()).queue();
+                        }
+                    }
+                } else if (isIdHubberChannel) {
+                    // save message id-hubber channel message to db for that API /discord/commented/idhubber will use it
                     discordVerifyMsgService.addMsg(guildId, user.getIdLong(), channel.getIdLong(),
                             event.getMessage().getIdLong(), userName, content, event.getJumpUrl());
-                    if (event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND)) {
-                        String desc = "Thank you! We’ve received your code. You can now return and continue your identity linking.\nRemember - no matter who you share the challenge code with, your data remains secure and private, as it is stored within the TEE.";
-                        EmbedBuilder embed = EmbedUtils
-                                .getDefaultEmbed()
-                                .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
-                                // .setTitle("Identity Linking")
-                                .setFooter(botProperties.getFooter())
-                                .setDescription(
-                                        desc);
-                        BotUtils.sendEmbed(event.getTextChannel(), embed);
-                    }
                 }
             }
         } catch (Exception e) {
-            log.error("parse message got error {} {} {}", e, event.getGuild().getIdLong(), author.getId());
+            log.error("parse message got error guildId[{}] authorId[{}]",
+                    event.getGuild().getIdLong(), author.getId(), e);
         }
 
         // log.info("got Private Message, content:{}, author:{}", content,

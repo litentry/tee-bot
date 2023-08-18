@@ -23,4 +23,5 @@ public class BotProperties {
     private Long mainGuildId;
     private Long idHubberRoleId;
     private Long idHubberChannelId;
+    private Long verifyIdentityChannelId;
 }
