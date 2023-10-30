@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.litentry.litbot.TEEBot.config.Constants;
 import com.litentry.litbot.TEEBot.domain.DiscordVerifyMsg;
 import com.litentry.litbot.TEEBot.repository.DiscordVerifyMsgRepository;
-import com.litentry.litbot.TEEBot.utils.BotUtils;
 
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -171,6 +170,22 @@ public class DiscordVerifyMsgService {
         return false;
     }
 
+    public Boolean hasRole(@NotNull final Long guildId, @NotNull final String handler, @NotNull final Long roleId) {
+        try {
+            final List<Guild> guilds = jda.getGuilds();
+            for (final Guild guild : guilds) {
+                if (guild.getIdLong() == guildId) {
+                    final Member m = guild.getMemberByTag(convertHandler2Tag(handler));
+                    return hasRole(guild, m, roleId);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Fail to call hasRole, guildId={}, handler={}, roleId={}", guildId, handler, roleId, e);
+        }
+
+        return false;
+    }
+
     private boolean assignRole(Guild guild, User user, long roleId) {
         if (guild == null || user == null) {
             return false;
@@ -209,5 +224,10 @@ public class DiscordVerifyMsgService {
         }
 
         return false;
+    }
+
+    private String convertHandler2Tag(String handler) {
+        return handler.contains(Constants.DISCRIMINATOR) ? handler
+                : String.format("%s%s%s", handler, Constants.DISCRIMINATOR, "0000");
     }
 }

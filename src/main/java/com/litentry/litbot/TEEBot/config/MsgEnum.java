@@ -16,6 +16,8 @@ public enum MsgEnum {
     DISCORD_USER_HANDLER_INVALID(100104, "Discord user handler invalid", ""),
     DISCORD_USER_NOTIN_GUILD(100105, "Discord user is not in guild", ""),
 
+    DISCORD_ROLE_ID_INVALID(100105, "Discord role id invalid", ""),
+
     // twitter: 201
     TWITTER_HANDLER_NOTFOUND(100201, "Twitter handler not found", ""),
 
