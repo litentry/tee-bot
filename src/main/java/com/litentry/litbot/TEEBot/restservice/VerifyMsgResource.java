@@ -109,7 +109,7 @@ public class VerifyMsgResource {
                 return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
             }
 
-            if (verifyMsgService.assginRoleToUser(gid, handler, roleId)) {
+            if (verifyMsgService.assignRoleToUser(gid, handler, roleId)) {
                 return ResponseEntity.ok(new InvokeResult<>(true).success(MsgEnum.SYSTEM_COMMON_SUCCESS));
             }
 
