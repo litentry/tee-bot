@@ -2,6 +2,7 @@ package com.litentry.litbot.TEEBot.restservice;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -147,6 +148,39 @@ public class VerifyMsgResource {
             }
         } catch (Exception e) {
             log.error("{}", e);
+        }
+
+        return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
+    }
+
+    @GetMapping("/user/has/role")
+    public ResponseEntity<InvokeResult<Boolean>> hasRole(final String handler,
+                                                         final String guildid,
+                                                         final String roleid) {
+        try {
+            if (StringUtils.isEmpty(guildid)) {
+                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
+            }
+            if (StringUtils.isEmpty(handler)) {
+                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_HANDLER_INVALID));
+            }
+            if (StringUtils.isEmpty(roleid)) {
+                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_ROLE_ID_INVALID));
+            }
+
+            final long gid = Long.parseLong(guildid);
+            final long roleId = Long.parseLong(roleid);
+
+            if (roleId <= 0) {
+                log.error("Invalid roleId id {}", roleId);
+                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_ROLE_ID_INVALID));
+            }
+
+            if (verifyMsgService.hasRole(gid, handler, roleId)) {
+                return ResponseEntity.ok(new InvokeResult<>(true).success(MsgEnum.SYSTEM_COMMON_SUCCESS));
+            }
+        } catch (Exception e) {
+            log.error("Fail to call API: discord/user/has/role", e);
         }
 
         return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.SYSTEM_COMMON_DATA_NOT_FOUND));
