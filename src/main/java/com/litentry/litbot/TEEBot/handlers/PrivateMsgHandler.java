@@ -82,7 +82,13 @@ public class PrivateMsgHandler extends ListenerAdapter {
                         discordVerifyMsgService.addMsg(guildId, user.getIdLong(), channel.getIdLong(),
                                 message.getIdLong(), userName, content, event.getJumpUrl());
                         if (event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND)) {
-                            String desc = "Thank you! Your code has been received. To continue, please copy the Discord message link as illustrated in the provided image. Once completed, you can proceed with the identity linking process and paste the link. Afterward, click the \"Verify\" button. Your data's security and privacy are safeguarded, stored within the secure TEE. This protection remains intact regardless of who views the challenge code. If you require help, don't hesitate to ask for assistance.";
+                            String desc = "Thank you! This is a bot message, and your discord verification code has been received. \n" +
+                                    "\n" +
+                                    "Next, please copy the link of your discord message which contains the verification code you just posted. Please be careful to select your message only, don't select this message, because this message is a discord bot message, you need copy the link of YOUR discord message (which is above the current bot message). Copying wrong message link will fail your discord account identity linking process.\n" +
+                                    "\n" +
+                                    "We also attached a screenshot below to show how you can copy the link of the message too.\n" +
+                                    "\n" +
+                                    "Once the correct link is copied, you can proceed with the identity linking process and paste the link. Afterward, click the \"Verify\" button. Your data's security and privacy are safeguarded, stored within the secure TEE. This protection remains intact regardless of who views the challenge code. If you require help, don't hesitate to ask for assistance.";
                             EmbedBuilder embed = EmbedUtils
                                     .getDefaultEmbed()
                                     .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())

@@ -41,7 +41,7 @@ public class DiscordVerifyMsgService {
     }
 
     public void addMsg(Long guildId, Long userId, Long channelId, Long msgId, String userName, String msg,
-            String jump) {
+                       String jump) {
         List<DiscordVerifyMsg> msgList = verifyMsgRepo.findAllByGuildIdAndDiscordUserOrderByCreatedAtDesc(guildId,
                 userName);
         int count = msgList.size();
@@ -71,100 +71,96 @@ public class DiscordVerifyMsgService {
         return null;
     }
 
-    public Boolean checkHasJoined(@NotNull Long guildId, @NotNull Long userId) {
-        boolean[] founds = new boolean[1];
-        founds[0] = false;
+    /**
+     * Check user has joined discord server
+     *
+     * @param guildId discord server guildId
+     * @param handler user `handler` means `Name#Discriminator` or `Name`
+     * @return has joined
+     */
+    public Boolean checkHasJoined(@NotNull Long guildId, @NotNull String handler) {
         try {
+            String tag = convertHandler2Tag(handler);
             List<Guild> guilds = jda.getGuilds();
             for (Guild guild : guilds) {
                 if (guild.getIdLong() == guildId) {
-                    jda.retrieveUserById(userId)
-                            .queue(user -> {
-                                guild.retrieveMember(user).queue(
-                                        member -> {
-                                            log.info("uid {} has joined guild {}", userId, guildId);
-                                            founds[0] = true;
-                                        },
-                                        error -> {
-                                        });
-                            });
+                    Member m = guild.getMemberByTag(tag);
+                    if (m == null) {
+                        log.error("Error check has joined: member is null, guildId[{}] handler[{}]", guildId, handler);
+                    } else {
+                        return true;
+                    }
                 }
             }
         } catch (Exception e) {
-            log.error("{}", e);
-        }
-
-        return founds[0];
-    }
-
-    // user `handler` means `Name#Discriminator`
-    public Boolean checkHasJoined(@NotNull Long guildId, @NotNull String handler) {
-        if (handler.contains(Constants.DISCRIMINATOR)) {
-            // username, discriminator
-            // String[] tmpArray = handler.split(Constants.DISCRIMINATOR);
-            try {
-                List<Guild> guilds = jda.getGuilds();
-                for (Guild guild : guilds) {
-                    if (guild.getIdLong() == guildId) {
-                        Member m = guild.getMemberByTag(handler);
-                        if (m != null) {
-                            return true;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.error("{}", e);
-            }
+            log.error("Fail to call checkHasJoined", e);
         }
 
         return false;
     }
 
-    // user `handler` means `Name#Discriminator`
-    public Boolean assginRoleToUser(@NotNull Long guildId, @NotNull String handler, @NotNull Long roleId) {
-        if (checkHasJoined(guildId, handler) && roleId > 0) {
-            try {
+    /**
+     * Assign discord role to user
+     *
+     * @param guildId discord server guildId
+     * @param handler user `handler` means `Name#Discriminator` or `Name`
+     * @param roleId  discord user id
+     * @return assign success
+     */
+    public Boolean assignRoleToUser(@NotNull Long guildId, @NotNull String handler, @NotNull Long roleId) {
+        String tag = convertHandler2Tag(handler);
+        try {
+            if (checkHasJoined(guildId, tag) && roleId > 0) {
                 List<Guild> guilds = jda.getGuilds();
                 for (Guild guild : guilds) {
                     if (guild.getIdLong() == guildId) {
                         Member m = guild.getMemberByTag(handler);
+                        if (m == null) {
+                            log.warn("Fail to assign role: member is null, {} {} {}", guildId, roleId, handler);
+                            return false;
+                        }
                         boolean assigned = assignRole(guild, m.getUser(), roleId);
                         if (!assigned) {
-                            log.error("Error assign Role {} {} {}", guildId, m.getId(), roleId);
+                            log.warn("Fail to assign role, guildId[{}] memberId[{}] roleId[{}]",
+                                    guildId, m.getId(), roleId);
                             return false;
                         }
                         return true;
                     }
                 }
-            } catch (Exception e) {
-                log.error("{}", e);
             }
+        } catch (Exception e) {
+            log.error("Fail to call assignRoleToUser", e);
         }
 
         return false;
     }
 
     public Boolean hasCommentedInChannelWithRole(@NotNull Long guildId, @NotNull String handler,
-            @NotNull Long channelId, @NotNull Long roleId) {
+                                                 @NotNull Long channelId, @NotNull Long roleId) {
         try {
             List<Guild> guilds = jda.getGuilds();
             for (Guild guild : guilds) {
                 if (guild.getIdLong() == guildId) {
-                    Member m = guild.getMemberByTag(handler);
-                    if (hasRole(guild, m, roleId)) {
+                    Member m = guild.getMemberByTag(convertHandler2Tag(handler));
+                    if (m != null && hasRole(guild, m, roleId)) {
+                        String userName = m.getUser().getName() + "#" + m.getUser().getDiscriminator();
                         List<DiscordVerifyMsg> msgList = verifyMsgRepo
                                 .findAllByGuildIdAndDiscordUserAndChannelIdOrderByCreatedAtDesc(
-                                        guildId, handler, channelId);
+                                        guildId, userName, channelId);
 
-                        if (!msgList.isEmpty()) {
-                            DiscordVerifyMsg msg = msgList.get(0);
+                        if (msgList.isEmpty()) {
+                            log.warn("No message commented in channel, guildId[{}] channelId[{}] handler[{}]",
+                                    guildId, channelId, handler);
+                        } else {
+                            // DiscordVerifyMsg msg = msgList.get(0);
                             return true;
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("{}", e);
+            log.error("Fail to call hasCommentedInChannelWithRole", e);
         }
 
         return false;
