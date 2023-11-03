@@ -154,13 +154,8 @@ public class VerifyMsgResource {
     }
 
     @GetMapping("/user/has/role")
-    public ResponseEntity<InvokeResult<Boolean>> hasRole(final String handler,
-                                                         final String guildid,
-                                                         final String roleid) {
+    public ResponseEntity<InvokeResult<Boolean>> hasRole(final String handler, final String roleid) {
         try {
-            if (StringUtils.isEmpty(guildid)) {
-                return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_GUILD_ID_INVALID));
-            }
             if (StringUtils.isEmpty(handler)) {
                 return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_USER_HANDLER_INVALID));
             }
@@ -168,7 +163,6 @@ public class VerifyMsgResource {
                 return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_ROLE_ID_INVALID));
             }
 
-            final long gid = Long.parseLong(guildid);
             final long roleId = Long.parseLong(roleid);
 
             if (roleId <= 0) {
@@ -176,7 +170,7 @@ public class VerifyMsgResource {
                 return ResponseEntity.ok(new InvokeResult<>(false).failure(MsgEnum.DISCORD_ROLE_ID_INVALID));
             }
 
-            if (verifyMsgService.hasRole(gid, handler, roleId)) {
+            if (verifyMsgService.hasRole(botProperties.getMainGuildId(), handler, roleId)) {
                 return ResponseEntity.ok(new InvokeResult<>(true).success(MsgEnum.SYSTEM_COMMON_SUCCESS));
             }
         } catch (Exception e) {
