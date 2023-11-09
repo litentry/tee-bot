@@ -6,6 +6,7 @@ import com.litentry.litbot.TEEBot.config.Constants;
 import com.litentry.litbot.TEEBot.service.DiscordVerifyMsgService;
 import com.litentry.litbot.TEEBot.service.PolkadotVerifyService;
 
+import com.litentry.litbot.TEEBot.utils.BotUtils;
 import me.duncte123.botcommons.messaging.EmbedUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -16,6 +17,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -82,17 +85,16 @@ public class PrivateMsgHandler extends ListenerAdapter {
                         discordVerifyMsgService.addMsg(guildId, user.getIdLong(), channel.getIdLong(),
                                 message.getIdLong(), userName, content, event.getJumpUrl());
                         if (event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND)) {
-                            String desc = "Thank you! This is a bot message, and your discord verification code has been received. \n" +
-                                    "\n" +
-                                    "Next, please copy the link of your discord message which contains the verification code you just posted. Please be careful to select your message only, don't select this message, because this message is a discord bot message, you need copy the link of YOUR discord message (which is above the current bot message). Copying wrong message link will fail your discord account identity linking process.\n" +
-                                    "\n" +
-                                    "We also attached a screenshot below to show how you can copy the link of the message too.\n" +
-                                    "\n" +
-                                    "Once the correct link is copied, you can proceed with the identity linking process and paste the link. Afterward, click the \"Verify\" button. Your data's security and privacy are safeguarded, stored within the secure TEE. This protection remains intact regardless of who views the challenge code. If you require help, don't hesitate to ask for assistance.";
+                            String desc = "Thank you! this is a bot message. Here is your discord verification link:\n\n" +
+                                    String.format("<https://discord.com/channels/%s/%s/%s>\n\n",
+                                            botProperties.getMainGuildId(), botProperties.getVerifyIdentityChannelId(), message.getId()) +
+                                    "Next, please copy above link and continue the process on the Identity Hub and paste the link. " +
+                                    "Afterward, click the \"Verify\" button. Your data's security and privacy are safeguarded, " +
+                                    "stored within the secure TEE. This protection remains intact regardless of who views the challenge code. " +
+                                    "If you require help, don't hesitate to ask for assistance.";
                             EmbedBuilder embed = EmbedUtils
                                     .getDefaultEmbed()
                                     .setAuthor(user.getName(), null, user.getEffectiveAvatarUrl())
-                                    .setImage("https://1401007075-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FqZamGXeNdPKNQXKBWxz5%2Fuploads%2FGCXCHopB1twkSbLNqxgh%2FDiscord.png?alt=media")
                                     .setFooter(botProperties.getFooter())
                                     .setDescription(desc);
 
